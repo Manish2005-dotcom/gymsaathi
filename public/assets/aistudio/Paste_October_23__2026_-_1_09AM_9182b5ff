@@ -1,0 +1,932 @@
+# MASTER PROMPT: BUILD GYMSAATHI — COMPLETE FITNESS PLATFORM
+
+Act as a senior full-stack developer, UI/UX designer, fitness application architect, and software tester.
+
+Build a complete, functional, modern fitness website named **GymSaathi** — a personal fitness companion designed primarily for gym beginners and students in India.
+
+The platform should help users plan workouts, create personalized Indian diet plans, understand exercise techniques, monitor progress, and develop sustainable fitness habits.
+
+Do not create only a landing page or static UI mockup. Build a working application with functional navigation, forms, calculators, workout recommendations, diet planning, video demonstrations, and progress tracking.
+
+If this is an existing project, inspect its current structure first and improve the existing project instead of unnecessarily rebuilding it.
+
+---
+
+# 1. TECHNOLOGY STACK
+
+Use the following technologies where compatible with the existing project:
+
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- Lucide icons
+- Reusable React components
+- Browser localStorage for local data persistence
+- Recharts or a similar chart library for progress graphs
+
+Use the existing stack if the project already has a suitable alternative. Do not introduce unnecessary dependencies.
+
+The basic application must work without paid APIs or mandatory API keys.
+
+Use a modular architecture with separate components, pages, utility functions, data files, and services.
+
+Create a clear README containing installation, development, build, and deployment instructions.
+
+---
+
+# 2. BRAND IDENTITY AND VISUAL DESIGN
+
+Brand name: GymSaathi
+
+Tagline: Your Personal Fitness Companion
+
+Brand personality:
+- Friendly
+- Motivational
+- Trustworthy
+- Beginner-friendly
+- Science-informed
+- Affordable and practical for Indian users
+
+Design a premium fitness dashboard with:
+
+- Dark charcoal or near-black background
+- Vibrant lime-green accent color
+- White primary text and muted secondary text
+- Modern typography
+- Rounded cards
+- Subtle shadows and borders
+- Clean spacing
+- Smooth, restrained transitions
+- Attractive fitness icons
+- Progress bars and charts
+- Consistent buttons and form elements
+
+Avoid an overly cluttered design, excessive gradients, unnecessary animations, and generic template appearance.
+
+Make the website fully responsive for mobile phones, tablets, laptops, and desktop screens.
+
+Include:
+- Desktop sidebar navigation
+- Mobile-friendly navigation
+- Responsive dashboard cards
+- Loading states
+- Empty states
+- Error messages
+- Success feedback
+- Accessible form labels
+- Keyboard navigation and visible focus states
+
+Create a simple GymSaathi logo using typography and a suitable fitness icon.
+
+---
+
+# 3. WEBSITE STRUCTURE
+
+Create the following pages or application sections:
+
+1. Home / Landing Page
+2. Dashboard
+3. User Profile and Fitness Assessment
+4. Workout Planner
+5. Exercise Library
+6. Diet Planner
+7. Available Ingredients Planner
+8. Calorie and Protein Calculator
+9. Progress Tracker
+10. Fitness Education and Safety
+11. Settings
+
+Provide working navigation between all sections.
+
+The user should be able to return to the dashboard from every main section.
+
+---
+
+# 4. LANDING PAGE
+
+Create a professional homepage with:
+
+## Hero section
+Headline: "Your Fitness Journey Starts Here."
+
+Subheading: "Personalized workouts, practical Indian diet plans, and progress tracking — all in one place."
+
+Primary CTA: "Build My Fitness Plan"
+
+Secondary CTA: "Explore Workouts"
+
+Include a fitness-themed visual that fits the brand.
+
+## Feature cards
+- Personalized Workout Plans
+- Smart Indian Diet Planner
+- Exercise Video Library
+- Calories and Protein Calculator
+- Fitness Progress Tracking
+- Beginner Safety Guide
+
+## How it works
+Step 1: Enter your fitness details.
+
+Step 2: Choose your goal and available equipment or food.
+
+Step 3: Get your personalized plan.
+
+Step 4: Complete workouts and track progress.
+
+## Additional sections
+- Why GymSaathi?
+- Beginner fitness tips
+- Sample workout preview
+- Sample Indian meal plan
+- Frequently asked questions
+- Footer with navigation and disclaimer
+
+All CTA buttons must lead to working pages or relevant forms.
+
+---
+
+# 5. USER PROFILE AND FITNESS ASSESSMENT
+
+Create a user profile form that collects:
+
+- Name or preferred display name
+- Age
+- Height in centimetres
+- Current weight in kilograms
+- Optional target weight
+- Fitness experience: Beginner, Intermediate, Advanced
+- Primary goal: Muscle Gain, Fat Loss, General Fitness, Strength, or Maintenance
+- Dietary preference: Vegetarian, Eggetarian, Non-Vegetarian
+- Approximate daily food budget
+- Workout location: Gym or Home
+- Available equipment
+- Typical workout time
+- Preferred meal frequency
+- Food allergies and dietary restrictions
+- Foods disliked by the user
+- Optional activity level
+
+Allow users to edit these details later.
+
+Validate all inputs. Do not accept invalid negative values or impossible measurements without appropriate warnings.
+
+Store profile data locally by default. Clearly explain that local data stays in the current browser and may not sync across devices.
+
+Do not request unnecessary sensitive information.
+
+Use these details to personalize diet and workout recommendations.
+
+---
+
+# 6. DIET PLANNER — TWO COMPLETE MODES
+
+Create an attractive Diet Planner page with two distinct modes:
+
+MODE A: Automatic Diet Plan
+
+MODE B: Plan Using My Available Foods
+
+Use a clear tab selector so users can switch between modes.
+
+Both modes must work without requiring a paid API key.
+
+If AI functionality is not configured, use a transparent rule-based recommendation engine with realistic food data. Never display fake claims that a live AI service has generated a plan.
+
+## MODE A: AUTOMATIC DIET PLAN
+
+Ask the user for:
+
+- Age
+- Height
+- Weight
+- Fitness goal
+- Activity level
+- Dietary preference
+- Food budget
+- Number of meals per day
+- Food allergies or restrictions
+- Available cooking facilities, if relevant
+
+Generate a complete daily diet plan with:
+
+1. Breakfast
+2. Mid-morning snack
+3. Lunch
+4. Evening snack
+5. Optional pre-workout meal
+6. Optional post-workout meal
+7. Dinner
+
+Adapt the number of meals to the user's preferences and schedule. Avoid unnecessary extra meals.
+
+### Nutrition calculations
+
+Estimate daily calorie requirements using a documented standard formula where the required inputs are available.
+
+Use an appropriate activity multiplier to estimate maintenance calories.
+
+Support the goals:
+- Muscle gain
+- Fat loss
+- Maintenance
+- General fitness
+
+Recommend moderate, adjustable changes rather than extreme calorie surpluses or deficits.
+
+If an input needed for a formula is missing, ask for it or explain that the estimate is incomplete.
+
+Estimate daily protein requirements using body weight, fitness goal, and appropriate general fitness ranges.
+
+Display:
+- Estimated daily calorie target
+- Estimated protein target in grams
+- Estimated carbohydrate and fat ranges when appropriate
+- Number of meals
+- Meal timings
+- Individual food portions
+- Calories per meal
+- Protein per meal
+- Daily nutrition totals
+- Estimated daily cost where sufficient price data exists
+
+Clearly label calorie, protein, and cost values as estimates. Do not imply exact medical or laboratory accuracy.
+
+### Indian food database
+
+Support practical, affordable Indian foods such as:
+
+- Roti
+- Rice
+- Dal
+- Rajma
+- Chana
+- Soy chunks
+- Paneer
+- Tofu
+- Milk
+- Curd
+- Eggs
+- Chicken
+- Fish
+- Oats
+- Bananas
+- Seasonal fruits
+- Potatoes
+- Peanuts
+- Peanut butter
+- Almonds
+- Mixed vegetables
+- Sprouts
+- Khichdi
+- Poha
+- Upma
+- Idli
+- Dosa
+
+Include vegetarian, eggetarian, and non-vegetarian options.
+
+Use a structured nutrition database with clearly documented approximate values per standard portion or per 100 grams.
+
+Do not invent precise nutrition data for foods that are not in the database.
+
+### Diet plan interaction
+
+Allow users to:
+- Replace an individual meal
+- Change food portions
+- Select alternative foods
+- Regenerate a daily plan
+- Mark meals as completed
+- View updated nutrition estimates after portion changes
+- View daily protein progress
+- Save a preferred plan
+- Reset to the original recommendation
+
+Ensure that changing a meal updates the totals correctly.
+
+---
+
+## MODE B: DIET PLAN USING AVAILABLE INGREDIENTS
+
+This is a major feature and must be fully implemented.
+
+Create a dedicated interface titled:
+
+"What's Available in Your Kitchen?"
+
+Let users choose ingredients they already have at home.
+
+### Ingredient selection
+
+Provide searchable ingredient cards and multi-select checkboxes.
+
+Include food categories:
+
+Protein:
+- Eggs
+- Milk
+- Curd
+- Paneer
+- Tofu
+- Soy chunks
+- Dal
+- Chana
+- Rajma
+- Chicken
+- Fish
+- Peanut butter
+
+Carbohydrates:
+- Rice
+- Roti / Atta
+- Oats
+- Bread
+- Poha
+- Upma ingredients
+- Potatoes
+- Bananas
+
+Fats and nuts:
+- Peanuts
+- Almonds
+- Cashews
+- Seeds
+- Cooking oil
+
+Fruits and vegetables:
+- Bananas
+- Apples
+- Seasonal fruits
+- Spinach
+- Tomatoes
+- Onions
+- Mixed vegetables
+
+Allow users to add custom ingredients that are not in the default list.
+
+### Quantity selection
+
+Allow users to specify the approximate quantity available:
+
+- Number of eggs
+- Milk in millilitres
+- Paneer in grams
+- Rice in grams or cups
+- Number of bananas
+- Atta in grams
+- Dal in grams
+- Other quantities with appropriate units
+
+Quantity information should help the planner avoid recommending more food than the user has available.
+
+### Generate a personalized plan
+
+When the user clicks "Generate My Diet Plan":
+
+1. Read the selected ingredients and their quantities.
+2. Read the user's fitness goal and nutritional targets.
+3. Read dietary restrictions and allergies.
+4. Generate a practical daily meal plan using available ingredients first.
+5. Estimate the nutritional value of each meal.
+6. Estimate how much of each ingredient will be consumed.
+7. Calculate the remaining quantities where possible.
+8. Show missing ingredients only when necessary.
+9. Suggest affordable substitutions.
+10. Keep meals realistic for a typical Indian household.
+
+For example, if the user has milk, oats, bananas, eggs, rice, dal, and peanuts, prioritize meals using those foods instead of requiring expensive supplements or unfamiliar ingredients.
+
+If the available ingredients cannot reasonably meet the user's estimated protein or calorie needs, explain the gap honestly and suggest optional additions.
+
+Never pretend that an unavailable ingredient is present.
+
+Never claim a diet meets the exact target if the calculated totals do not support that claim.
+
+### Additional controls
+
+Include:
+- Add ingredient
+- Remove ingredient
+- Edit quantity
+- Clear all ingredients
+- Generate plan
+- Regenerate one meal
+- Save plan
+- Switch to Automatic Mode
+
+Persist the ingredient inventory locally.
+
+---
+
+# 7. WORKOUT PLANNER — MY PREFERRED WEEKLY SPLIT
+
+Implement the following exact preferred workout schedule:
+
+Monday: Back
+
+Tuesday: Biceps
+
+Wednesday: Chest
+
+Thursday: Triceps
+
+Friday: Shoulders + Abs
+
+Saturday: Legs
+
+Sunday: Rest and Recovery
+
+Display this as a weekly workout calendar.
+
+Each day must have its own page or expandable workout panel.
+
+Show the current day's workout prominently, but allow users to view any other day.
+
+Provide previous-week and next-week navigation if practical.
+
+Every training day must recommend exactly SIX exercises in its default workout plan.
+
+For every exercise, display:
+
+1. Exercise name
+2. Primary target muscles
+3. Secondary target muscles where relevant
+4. Sets
+5. Repetitions or duration
+6. Rest interval
+7. Equipment required
+8. Step-by-step correct technique
+9. Starting position
+10. Movement execution
+11. Breathing guidance
+12. Correct posture cues
+13. Common mistakes
+14. Injury-prevention tips
+15. Video demonstration
+16. Beginner-friendly alternative
+
+Make the exercise recommendations appropriate to the user's experience level and equipment.
+
+Do not claim that an exercise is suitable for everyone.
+
+## DEFAULT EXERCISE LIBRARY
+
+Use the following as initial recommendations. Adjust exercises when necessary for available equipment, experience, and safe progression.
+
+### MONDAY — BACK
+
+Recommend six exercises from this default list:
+
+1. Lat Pulldown
+2. Seated Cable Row
+3. Chest-Supported Row
+4. One-Arm Dumbbell Row
+5. Straight-Arm Pulldown
+6. Back Extension
+
+Offer suitable alternatives for home workouts.
+
+Avoid excessive overlapping volume for beginners and provide guidance on selecting manageable weights.
+
+### TUESDAY — BICEPS
+
+Recommend six exercises:
+
+1. EZ-Bar Curl
+2. Alternating Dumbbell Curl
+3. Hammer Curl
+4. Incline Dumbbell Curl
+5. Preacher Curl
+6. Cable Curl
+
+Include alternatives for users without gym equipment.
+
+Explain controlled movement and avoiding excessive body swinging.
+
+### WEDNESDAY — CHEST
+
+Recommend six exercises:
+
+1. Barbell Bench Press
+2. Incline Dumbbell Press
+3. Machine Chest Press
+4. Cable Fly
+5. Push-Ups
+6. Pec Deck Fly
+
+Offer alternatives depending on equipment availability.
+
+Include safe bench setup and appropriate spotting guidance for heavy free-weight movements.
+
+### THURSDAY — TRICEPS
+
+Recommend six exercises:
+
+1. Cable Triceps Pushdown
+2. Overhead Cable Triceps Extension
+3. Dumbbell Overhead Triceps Extension
+4. Close-Grip Push-Up
+5. Assisted Dip or Suitable Dip Variation
+6. Dumbbell Triceps Kickback
+
+Include joint-friendly alternatives.
+
+Warn users against painful elbow positioning or uncontrolled repetitions.
+
+### FRIDAY — SHOULDERS + ABS
+
+Recommend six exercises:
+
+1. Seated Dumbbell Shoulder Press
+2. Dumbbell Lateral Raise
+3. Reverse Pec Deck or Rear Delt Fly
+4. Cable or Band Face Pull
+5. Plank
+6. Dead Bug or Reverse Crunch
+
+Include posture guidance and avoid recommending painful shoulder movements.
+
+Explain that shoulder pressing also involves the triceps, which may affect recovery from Thursday's workout.
+
+### SATURDAY — LEGS
+
+Recommend six exercises:
+
+1. Squat or Suitable Squat Variation
+2. Leg Press or Goblet Squat
+3. Romanian Deadlift with Appropriate Technique
+4. Leg Curl
+5. Calf Raise
+6. Split Squat or Suitable Unilateral Leg Exercise
+
+Offer bodyweight alternatives for home workouts.
+
+Include careful instructions for knee, hip, and back positioning.
+
+### SUNDAY — REST AND RECOVERY
+
+Do not prescribe a seventh intense workout.
+
+Show:
+- Rest and recovery guidance
+- Optional easy walking
+- Gentle mobility exercises
+- Hydration reminders
+- Sleep recommendations
+- Weekly progress review
+
+Explain that rest is part of training.
+
+## IMPORTANT WORKOUT PROGRAMMING RULES
+
+The six exercises above are a recommendation library, not a requirement to perform every listed exercise at maximum volume.
+
+The default displayed plan must contain exactly six exercises per training day, but make the workload suitable for beginners.
+
+Provide sensible default sets and reps, with options to reduce training volume.
+
+Explain that the user's requested split is a preference and that a single-muscle-day split is not mandatory for muscle growth.
+
+Because Thursday's triceps session precedes Friday's shoulder pressing, include recovery guidance and offer a triceps-friendly shoulder alternative when necessary.
+
+Use conservative progression and never encourage training through pain.
+
+If the user reports an injury or persistent pain, recommend professional evaluation rather than attempting to diagnose or treat it.
+
+---
+
+# 8. VIDEO DEMONSTRATIONS AND POSTURE GUIDANCE
+
+This is a critical feature.
+
+Each of the six exercises on every workout day must have a relevant video demonstration or a reliable fallback link.
+
+Use reputable sources such as:
+- Official exercise demonstration libraries
+- Reputable fitness education websites
+- Verified exercise instruction channels
+- Properly matched instructional videos
+
+### Video implementation rules
+
+Do not invent YouTube video IDs.
+
+Do not use random video URLs.
+
+Do not embed a video simply because its title contains a similar word.
+
+Maintain a structured exercise dataset with fields such as:
+
+- Exercise ID
+- Exercise name
+- Target muscle
+- Equipment
+- Instructions
+- Sets and reps
+- Video URL
+- Video source
+- Video verification status
+- Fallback search URL
+
+Only embed a video when the actual video is known to match the exercise.
+
+If a verified embed URL is not available:
+- Display a clear "Watch Exercise Demo" link using a genuine, correctly constructed search URL.
+- Search for the exact exercise name plus "proper form tutorial".
+- Clearly label it as a search link rather than a verified individual video.
+- Do not display a broken video player.
+
+Use responsive video containers with an appropriate aspect ratio.
+
+If embedding is blocked, keep the fallback link visible.
+
+### Correct posture panel
+
+For each exercise, create an expandable "Correct Form & Posture" section with:
+
+- Setup
+- Body alignment
+- Movement steps
+- Breathing
+- Common mistakes
+- Safety cues
+- Beginner modification
+
+The video and written instructions must refer to the same exercise.
+
+Do not rely on a video alone. Provide written instructions for every exercise.
+
+---
+
+# 9. WORKOUT COMPLETION AND TRACKING
+
+For each exercise, provide:
+- Completion checkbox
+- Sets and reps information
+- Optional weight used
+- Optional actual repetitions
+- Notes field
+
+At the end of the workout, show:
+- Exercises completed out of six
+- Completion percentage
+- Total completed workouts for the week
+- Weekly consistency
+- Current workout streak, if applicable
+
+Include a "Complete Workout" button.
+
+Only mark a workout completed when the user confirms it.
+
+Allow the user to edit or undo completion records.
+
+Store workout records with dates in localStorage.
+
+Do not generate fake completion history.
+
+Use local dates consistently and avoid accidentally recording workouts on the wrong day because of timezone conversions.
+
+---
+
+# 10. CALORIE, PROTEIN AND FITNESS CALCULATOR
+
+Create a working fitness calculator.
+
+Inputs:
+- Age
+- Height
+- Weight
+- Activity level
+- Fitness goal
+
+Outputs:
+- BMI estimate
+- Estimated maintenance calories
+- Suggested calorie range for the selected goal
+- Estimated protein target
+- Optional carbohydrate and fat ranges
+
+Use documented formulas and show the underlying assumptions.
+
+BMI must be labelled as a rough screening measure, not a complete assessment of health or body composition.
+
+Do not use BMI alone to determine whether a person is healthy.
+
+For users under 18, pregnant users, users with relevant medical conditions, and users with a history of disordered eating, avoid aggressive calorie prescriptions and recommend qualified professional guidance.
+
+Do not recommend extreme weight-loss diets or dangerous bulking practices.
+
+---
+
+# 11. PROGRESS TRACKER
+
+Create a progress dashboard where users can record:
+
+- Date
+- Body weight
+- Optional waist measurement
+- Optional other body measurements
+- Workouts completed
+- Daily calorie estimate
+- Daily protein estimate
+- Personal notes
+
+Display charts for:
+- Body weight over time
+- Workout consistency
+- Weekly workout completion
+- Optional calorie and protein trends
+
+Allow users to:
+- Add a new entry
+- Edit an entry
+- Delete an entry with confirmation
+- Choose date ranges
+- View weekly and monthly trends
+- Export their own records as CSV if practical
+- Clear all locally stored data with confirmation
+
+Do not create fictional progress records.
+
+If no records exist, show an informative empty state and a button to add the first entry.
+
+Do not imply that short-term weight fluctuations necessarily represent fat or muscle changes.
+
+---
+
+# 12. EXERCISE LIBRARY
+
+Create a searchable exercise library with filters for:
+
+- Muscle group
+- Equipment
+- Difficulty
+- Home or gym
+- Exercise type
+
+Each exercise card should show:
+- Exercise name
+- Muscle group
+- Equipment
+- Difficulty
+- Basic instruction
+- Recommended sets and reps
+- Video or fallback search link
+
+Allow users to open an exercise detail view.
+
+Use the same verified exercise data throughout the application so that the workout planner and exercise library remain consistent.
+
+---
+
+# 13. FITNESS EDUCATION AND SAFETY
+
+Create a dedicated learning section covering:
+
+- Importance of warm-ups
+- Correct lifting technique
+- Progressive overload
+- Recovery and rest days
+- Sleep and hydration
+- Basic protein and calorie concepts
+- Training consistency
+- Common gym mistakes
+- Beginner equipment safety
+- When to stop exercising and seek help
+
+Use simple, practical language.
+
+Make it clear that exercise recommendations are general educational guidance and not medical advice.
+
+Never claim that a particular diet or exercise guarantees muscle growth, fat loss, or injury prevention.
+
+Avoid unsafe supplement recommendations and do not make supplements mandatory.
+
+---
+
+# 14. DATA STORAGE AND APPLICATION STATE
+
+Use localStorage for:
+- User profile
+- Fitness preferences
+- Selected ingredients
+- Saved diet plans
+- Workout completion
+- Exercise logs
+- Weight and measurement records
+- Settings
+
+Implement reusable storage utilities.
+
+Validate stored data before using it.
+
+Handle missing, malformed, or outdated local data gracefully.
+
+Include a reset option with a confirmation dialog.
+
+Do not claim that the application has cloud synchronization, accounts, or multi-device backup unless those features are actually implemented.
+
+Keep the architecture ready for future authentication and a database, but do not add a complex backend unnecessarily for the initial version.
+
+---
+
+# 15. FUNCTIONALITY AND QUALITY REQUIREMENTS
+
+Every visible interactive element must work.
+
+Implement:
+- Buttons
+- Navigation
+- Forms
+- Tabs
+- Search
+- Filters
+- Dropdowns
+- Checkboxes
+- Meal replacement
+- Portion adjustments
+- Nutrition total recalculation
+- Workout completion
+- Progress chart updates
+- Local persistence
+- Confirmation dialogs
+- Error handling
+
+Do not leave placeholder buttons that do nothing.
+
+Do not use fake AI output, fake video players, fabricated nutritional claims, or fake user progress.
+
+Use realistic sample food and exercise data, but clearly distinguish static example data from the user's actual records.
+
+Use TypeScript types for core data structures.
+
+Keep the code readable and modular.
+
+Prevent common runtime errors such as:
+- Undefined properties
+- Invalid numeric calculations
+- Broken video embeds
+- Missing keys in rendered lists
+- Invalid form submissions
+- Incorrect nutrition totals
+- Lost progress after page refresh
+
+---
+
+# 16. IMPLEMENTATION STRATEGY
+
+First inspect the existing codebase and identify the current framework, entry point, routing, styling system, and existing features.
+
+Then implement the application in a stable sequence:
+
+Phase 1: Design system, navigation, homepage, and responsive layout.
+
+Phase 2: User profile and fitness assessment.
+
+Phase 3: Workout planner, seven-day schedule, six exercises per training day, instructions, and video fallbacks.
+
+Phase 4: Automatic diet planner and nutrition calculations.
+
+Phase 5: Available-ingredients planner with quantity tracking and meal substitutions.
+
+Phase 6: Exercise library and fitness education.
+
+Phase 7: Progress tracker, charts, and local persistence.
+
+Phase 8: Validation, responsive testing, accessibility, and README.
+
+If the complete implementation cannot fit into one generation, prioritize a fully working core application and continue in phases. Do not replace working features with static mockups to make the project appear complete.
+
+---
+
+# 17. ACCEPTANCE TESTS
+
+Before declaring the project complete, verify the following:
+
+1. The application starts without runtime errors.
+2. Navigation works across all main sections.
+3. User profile information persists after refresh.
+4. Both diet-planning modes are accessible.
+5. Automatic mode produces a plan using the selected preferences.
+6. Available-ingredients mode prioritizes selected foods and respects available quantities.
+7. Nutrition totals update after portion or meal changes.
+8. The Monday-to-Saturday workout split matches the requested schedule.
+9. Sunday is a rest and recovery day.
+10. Each training day displays exactly six exercises in its default plan.
+11. Every exercise includes written posture instructions.
+12. Every exercise has a verified video or a correctly labelled fallback search link.
+13. Workout completion is saved and can be corrected.
+14. Progress records update the charts.
+15. Empty states and invalid inputs are handled properly.
+16. The interface works on mobile and desktop.
+17. No API key is required for the basic features.
+18. No buttons are decorative or non-functional.
+19. The README accurately describes what is implemented.
+20. No feature is claimed to work unless it has actually been implemented.
+
+Build GymSaathi as a polished, reliable, beginner-friendly fitness application that feels like a real product rather than a college project demo.
+
+Start by inspecting the existing project and then implement the features directly in the project. Do not respond with only a plan or instructions — write the code and build the application.

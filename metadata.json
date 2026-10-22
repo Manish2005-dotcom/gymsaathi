@@ -1,0 +1,6 @@
+{
+  "name": "GymSaathi - Personal Fitness & Indian Diet Companion",
+  "description": "Complete personal fitness platform for gym beginners and students in India with personalized 7-day workouts, smart Indian diet planner, available kitchen ingredients planner, and progress tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
