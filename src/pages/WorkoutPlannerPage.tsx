@@ -50,6 +50,8 @@ import { EXERCISES, WORKOUT_DAYS } from '../data/exercises';
 import { WORKOUT_TEMPLATES, getDefaultWeeklyCustomPlan } from '../data/workoutTemplates';
 import { calculateWorkoutVolumeAndRecovery } from '../utils/workoutVolume';
 import { StorageService } from '../services/storage';
+import { SupabaseDbService } from '../services/supabaseDb';
+import { useAuth } from '../context/AuthContext';
 import { ExerciseModal } from '../components/ExerciseModal';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { WorkoutExecutionModal } from '../components/WorkoutExecutionModal';
@@ -118,6 +120,7 @@ export const WorkoutPlannerPage: React.FC<WorkoutPlannerPageProps> = ({
   const dayKeyMap: DayKey[] = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
   const currentTodayKey = dayKeyMap[today.getDay()];
   const todayDateStr = today.toISOString().split('T')[0];
+  const { user } = useAuth();
 
   // Active custom weekly plan
   const [weeklyPlan, setWeeklyPlan] = useState<WeeklyCustomPlan>(() =>
@@ -207,10 +210,15 @@ export const WorkoutPlannerPage: React.FC<WorkoutPlannerPageProps> = ({
     exercises: {},
   };
 
-  // Persist weekly plan to localStorage helper
+  // Persist weekly plan to localStorage & Supabase helper
   const persistPlan = (updated: WeeklyCustomPlan) => {
     setWeeklyPlan(updated);
     StorageService.saveCustomWorkoutPlan(updated);
+    if (user?.id) {
+      SupabaseDbService.saveWorkoutPlan(user.id, updated).catch((err) => {
+        console.warn('Failed to sync workout plan to Supabase:', err);
+      });
+    }
   };
 
   // Day field updates

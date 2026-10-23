@@ -23,6 +23,8 @@ export interface UserProfile {
   dislikedFoods: string[];
   activityLevel: ActivityLevel;
   favoriteExerciseIds?: string[];
+  email?: string;
+  isOnboarded?: boolean;
   updatedAt: string;
 }
 
