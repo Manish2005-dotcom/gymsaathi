@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Flame,
   Dumbbell,
@@ -13,12 +13,14 @@ import {
   ChevronRight,
   Refrigerator,
   Info,
+  Play,
 } from 'lucide-react';
 import { NavTab } from '../components/Sidebar';
-import { UserProfile, DayWorkoutSession, GeneratedDietPlan, Exercise, DayKey } from '../types/fitness';
+import { UserProfile, DayWorkoutSession, GeneratedDietPlan, Exercise, DayKey, CustomDayExercise } from '../types/fitness';
 import { WORKOUT_DAYS, EXERCISES } from '../data/exercises';
 import { calculateMacroTargets } from '../utils/fitnessCalculators';
 import { StorageService } from '../services/storage';
+import { WorkoutExecutionModal } from '../components/WorkoutExecutionModal';
 
 interface DashboardProps {
   profile: UserProfile;
@@ -26,6 +28,7 @@ interface DashboardProps {
   activeDietPlan: GeneratedDietPlan | null;
   onNavigate: (tab: NavTab) => void;
   onSelectWorkoutDay?: (dayKey: string) => void;
+  onSaveSession?: (session: DayWorkoutSession) => void;
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({
@@ -34,7 +37,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
   activeDietPlan,
   onNavigate,
   onSelectWorkoutDay,
+  onSaveSession,
 }) => {
+  const [executionModalOpen, setExecutionModalOpen] = useState(false);
   // Current local day
   const today = new Date();
   const dayIndex = today.getDay(); // 0 is Sunday, 1 is Monday ... 6 is Saturday
@@ -99,13 +104,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
-              onClick={() => onNavigate('workout-planner')}
-              className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-lime-500 hover:bg-lime-400 text-zinc-950 font-black text-xs sm:text-sm transition-all shadow-lg shadow-lime-950/40 hover:scale-105"
+              onClick={() => setExecutionModalOpen(true)}
+              className="flex items-center gap-2 px-5 py-3 rounded-2xl bg-lime-400 hover:bg-lime-300 text-black font-black text-xs sm:text-sm transition-all shadow-lg shadow-lime-500/20 hover:scale-105 active:scale-95"
             >
-              <Dumbbell className="w-4 h-4" />
-              <span>Today's Workout</span>
+              <Play className="w-4 h-4 fill-black" />
+              <span>{isTodayRest ? 'Start Workout Session' : 'Start Workout Now'}</span>
+            </button>
+            <button
+              onClick={() => onNavigate('workouts')}
+              className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-white font-bold text-xs sm:text-sm border border-zinc-800 transition-colors"
+            >
+              <Dumbbell className="w-4 h-4 text-lime-400" />
+              <span>Customize Split</span>
             </button>
           </div>
         </div>
@@ -148,13 +160,22 @@ export const Dashboard: React.FC<DashboardProps> = ({
               <p className="text-xs text-zinc-400 leading-relaxed">
                 No heavy lifting scheduled today! Muscles synthesize new tissue during rest periods. Aim for 20-30 minutes of gentle walking, joint mobility, 3+ liters of water, and 8 hours of sleep.
               </p>
-              <button
-                onClick={() => onNavigate('workout-planner')}
-                className="text-xs font-bold text-lime-400 hover:text-lime-300 flex items-center gap-1.5"
-              >
-                <span>Customize Schedule or Open Planner</span>
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
+              <div className="flex flex-wrap items-center gap-3 pt-1">
+                <button
+                  onClick={() => setExecutionModalOpen(true)}
+                  className="px-3.5 py-1.5 rounded-xl bg-lime-400 hover:bg-lime-300 text-black font-bold text-xs flex items-center gap-1.5 shadow-sm"
+                >
+                  <Play className="w-3.5 h-3.5 fill-black" />
+                  <span>Log Workout Anyway</span>
+                </button>
+                <button
+                  onClick={() => onNavigate('workouts')}
+                  className="text-xs font-bold text-zinc-300 hover:text-white flex items-center gap-1.5"
+                >
+                  <span>Customize Schedule</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           ) : (
             <div className="space-y-3">
@@ -185,20 +206,29 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 })}
               </div>
 
-              <div className="pt-2 flex justify-between items-center">
+              <div className="pt-2 flex flex-wrap justify-between items-center gap-2">
                 <span className="text-xs text-zinc-500">
-                  Target Muscle: <strong className="text-zinc-300">{todayMeta.target}</strong>
+                  Target: <strong className="text-zinc-300">{customDay?.targetTitle || todayMeta.title}</strong>
                 </span>
-                <button
-                  onClick={() => {
-                    if (onSelectWorkoutDay) onSelectWorkoutDay(currentDayKey);
-                    onNavigate('workout-planner');
-                  }}
-                  className="flex items-center gap-1.5 text-xs font-bold text-lime-400 hover:text-lime-300"
-                >
-                  <span>Open Full Workout & Form Cues</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setExecutionModalOpen(true)}
+                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-lime-400 hover:bg-lime-300 text-black text-xs font-black shadow-md shadow-lime-500/10 transition-all"
+                  >
+                    <Play className="w-3.5 h-3.5 fill-black" />
+                    <span>Start Workout</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (onSelectWorkoutDay) onSelectWorkoutDay(currentDayKey);
+                      onNavigate('workouts');
+                    }}
+                    className="flex items-center gap-1 text-xs font-bold text-zinc-400 hover:text-white px-2 py-1"
+                  >
+                    <span>View Form Cues</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -310,55 +340,55 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* Quick Launch Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div
-          onClick={() => onNavigate('kitchen-planner')}
+          onClick={() => onNavigate('workouts')}
+          className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 hover:border-lime-500/40 transition-all cursor-pointer group"
+        >
+          <div className="w-10 h-10 rounded-xl bg-lime-500/15 text-lime-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            <Dumbbell className="w-5 h-5" />
+          </div>
+          <h4 className="font-bold text-white text-sm group-hover:text-lime-400 transition-colors">
+            7-Day Split Builder
+          </h4>
+          <p className="text-xs text-zinc-400 mt-1">Customize Monday–Sunday splits, volume & muscle targets.</p>
+        </div>
+
+        <div
+          onClick={() => onNavigate('workouts')}
+          className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 hover:border-lime-500/40 transition-all cursor-pointer group"
+        >
+          <div className="w-10 h-10 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            <Sparkles className="w-5 h-5" />
+          </div>
+          <h4 className="font-bold text-white text-sm group-hover:text-sky-400 transition-colors">
+            2D Exercise Library
+          </h4>
+          <p className="text-xs text-zinc-400 mt-1">Interactive animated humanoid models & proper form cues.</p>
+        </div>
+
+        <div
+          onClick={() => onNavigate('diet-planner')}
           className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 hover:border-lime-500/40 transition-all cursor-pointer group"
         >
           <div className="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
             <Refrigerator className="w-5 h-5" />
           </div>
           <h4 className="font-bold text-white text-sm group-hover:text-amber-400 transition-colors">
-            Kitchen Inventory
+            Kitchen Diet Cooker
           </h4>
-          <p className="text-xs text-zinc-400 mt-1">Plan meals with ingredients already in your home fridge.</p>
+          <p className="text-xs text-zinc-400 mt-1">Generate Indian meals from ingredients already in your home.</p>
         </div>
 
         <div
-          onClick={() => onNavigate('exercise-library')}
-          className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 hover:border-lime-500/40 transition-all cursor-pointer group"
-        >
-          <div className="w-10 h-10 rounded-xl bg-sky-500/15 text-sky-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-            <Dumbbell className="w-5 h-5" />
-          </div>
-          <h4 className="font-bold text-white text-sm group-hover:text-sky-400 transition-colors">
-            Exercise Library
-          </h4>
-          <p className="text-xs text-zinc-400 mt-1">42+ movements with video tutorials and posture cues.</p>
-        </div>
-
-        <div
-          onClick={() => onNavigate('calculator')}
+          onClick={() => onNavigate('progress')}
           className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 hover:border-lime-500/40 transition-all cursor-pointer group"
         >
           <div className="w-10 h-10 rounded-xl bg-purple-500/15 text-purple-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
             <TrendingUp className="w-5 h-5" />
           </div>
           <h4 className="font-bold text-white text-sm group-hover:text-purple-400 transition-colors">
-            Calorie & Macro Calc
+            Progress & Metrics
           </h4>
-          <p className="text-xs text-zinc-400 mt-1">Mifflin-St Jeor BMR, TDEE, and Indian BMI screening.</p>
-        </div>
-
-        <div
-          onClick={() => onNavigate('progress-tracker')}
-          className="p-5 rounded-2xl bg-zinc-950 border border-zinc-800 hover:border-lime-500/40 transition-all cursor-pointer group"
-        >
-          <div className="w-10 h-10 rounded-xl bg-rose-500/15 text-rose-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-            <LineChart className="w-5 h-5" />
-          </div>
-          <h4 className="font-bold text-white text-sm group-hover:text-rose-400 transition-colors">
-            Progress Tracker
-          </h4>
-          <p className="text-xs text-zinc-400 mt-1">Log body weight, waist changes, and export CSV logs.</p>
+          <p className="text-xs text-zinc-400 mt-1">Log weigh-ins, Asian-Indian BMI, and macro targets.</p>
         </div>
       </div>
 
@@ -372,6 +402,30 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </span>
         </div>
       </div>
+
+      {/* Workout Execution Modal */}
+      {executionModalOpen && todayExercises.length > 0 && (
+        <WorkoutExecutionModal
+          isOpen={executionModalOpen}
+          dayTitle={customDay?.targetTitle || todayMeta.title}
+          dayExercises={
+            customDay && customDay.exercises?.length > 0
+              ? customDay.exercises
+              : todayExercises.map((e) => ({
+                  exerciseId: e.id,
+                  sets: e.defaultSets || 3,
+                  reps: e.defaultReps || '10-12',
+                  restSeconds: e.restSeconds || 60,
+                }))
+          }
+          exerciseMap={allExercisesMap}
+          onClose={() => setExecutionModalOpen(false)}
+          onFinishWorkout={(session) => {
+            if (onSaveSession) onSaveSession(session);
+            setExecutionModalOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 };

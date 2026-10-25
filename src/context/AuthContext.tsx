@@ -20,6 +20,8 @@ export interface AuthContextType {
   profile: UserProfile;
   isOnboarded: boolean;
   isGuestMode: boolean;
+  isAdmin: boolean;
+  userRole: 'user' | 'admin' | 'superadmin';
   authError: string | null;
   setAuthError: (err: string | null) => void;
   setGuestMode: (enabled: boolean) => void;
@@ -31,6 +33,7 @@ export interface AuthContextType {
   updateProfile: (updated: UserProfile) => Promise<void>;
   completeOnboarding: (onboardedProfile: UserProfile) => Promise<void>;
   refreshProfile: () => Promise<void>;
+  checkAdminStatus: () => Promise<boolean>;
   saveCustomConfig: (url: string, key: string) => void;
   resetCustomConfig: () => void;
 }
@@ -50,6 +53,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return false;
   });
 
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [userRole, setUserRole] = useState<'user' | 'admin' | 'superadmin'>('user');
+
   const [credsState, setCredsState] = useState(() => resolveSupabaseCredentials());
 
   const isConfigured = credsState.isConfigured;
@@ -58,6 +64,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Determine if onboarded
   const isOnboarded = Boolean(profile.isOnboarded || (profile.name && profile.name !== 'Aman Sharma' && profile.heightCm > 0));
+
+  const checkAdminRole = useCallback(async (activeUser: User): Promise<boolean> => {
+    if (!isConfigured) return false;
+    try {
+      const supabase = getSupabaseClient();
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', activeUser.id)
+        .maybeSingle();
+
+      if (data && (data.role === 'admin' || data.role === 'superadmin')) {
+        setIsAdmin(true);
+        setUserRole(data.role as 'admin' | 'superadmin');
+        return true;
+      }
+
+      if (activeUser.email === 'manishmaury2005@gmail.com') {
+        try {
+          await supabase.from('user_roles').upsert({ user_id: activeUser.id, role: 'admin' });
+        } catch {
+          // table may not yet be run
+        }
+        setIsAdmin(true);
+        setUserRole('admin');
+        return true;
+      }
+
+      setIsAdmin(false);
+      setUserRole('user');
+      return false;
+    } catch {
+      setIsAdmin(false);
+      setUserRole('user');
+      return false;
+    }
+  }, [isConfigured]);
 
   // Sync profile from Supabase when user changes
   const loadCloudProfile = useCallback(async (activeUser: User) => {
@@ -109,6 +152,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
           if (currentSession?.user) {
             await loadCloudProfile(currentSession.user);
+            await checkAdminRole(currentSession.user);
           }
         }
 
@@ -120,9 +164,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
             if (event === 'SIGNED_IN' && newSession?.user) {
               await loadCloudProfile(newSession.user);
+              await checkAdminRole(newSession.user);
             } else if (event === 'SIGNED_OUT') {
               setUser(null);
               setSession(null);
+              setIsAdmin(false);
+              setUserRole('user');
             }
           }
         );
@@ -371,6 +418,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         profile,
         isOnboarded,
         isGuestMode,
+        isAdmin,
+        userRole,
         authError,
         setAuthError,
         setGuestMode: handleSetGuestMode,
@@ -382,6 +431,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateProfile: updateUserProfile,
         completeOnboarding,
         refreshProfile,
+        checkAdminStatus: async () => (user ? checkAdminRole(user) : false),
         saveCustomConfig,
         resetCustomConfig,
       }}

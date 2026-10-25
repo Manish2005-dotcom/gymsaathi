@@ -10,6 +10,7 @@ import {
   CloudOff,
   ChevronDown,
   Sparkles,
+  ShieldCheck,
 } from 'lucide-react';
 import { NavTab } from './Sidebar';
 import { UserProfile } from '../types/fitness';
@@ -22,20 +23,23 @@ interface HeaderProps {
   profile: UserProfile;
   onOpenAuthModal?: () => void;
   onOpenSetupGuide?: () => void;
+  onOpenAdminPanel?: () => void;
 }
 
 const TAB_TITLES: Record<NavTab, { title: string; subtitle: string }> = {
   home: { title: 'Welcome to GymSaathi', subtitle: 'Personalized fitness & Indian diet plans' },
   dashboard: { title: 'Fitness Command Center', subtitle: "Today's workouts, nutrition, and habits" },
-  profile: { title: 'Fitness Profile & Assessment', subtitle: 'Personalized metrics and dietary parameters' },
-  'workout-planner': { title: 'Weekly Workout Split', subtitle: 'Customizable 7-day schedule with animated demos' },
+  workouts: { title: 'Workouts & Exercises', subtitle: 'Customizable 7-day schedule with animated 2D demonstrations' },
   'diet-planner': { title: 'Indian Diet Planner', subtitle: 'Automatic meal plans & kitchen inventory mode' },
+  progress: { title: 'Progress & Metabolic Calculators', subtitle: 'Track weights, body metrics, and consistency' },
+  profile: { title: 'Fitness Profile & Assessment', subtitle: 'Personalized metrics and dietary parameters' },
+  settings: { title: 'Application Settings', subtitle: 'Data backup, export CSV, and reset preferences' },
+  'workout-planner': { title: 'Weekly Workout Split', subtitle: 'Customizable 7-day schedule with animated demos' },
   'kitchen-planner': { title: "What's in Your Kitchen?", subtitle: 'Cook with ingredients already in your home' },
   'exercise-library': { title: 'Exercise Technique Library', subtitle: 'Animated character demonstrations & form cues' },
   calculator: { title: 'Calorie, Protein & BMI Calculator', subtitle: 'Science-backed metabolic calculations' },
   'progress-tracker': { title: 'Progress & Consistency Tracker', subtitle: 'Log weights, workouts and body trends' },
   education: { title: 'Fitness Education & Safety', subtitle: 'Science-informed guidelines and myth-busting' },
-  settings: { title: 'Application Settings', subtitle: 'Data backup, export CSV, and reset preferences' },
 };
 
 export const Header: React.FC<HeaderProps> = ({
@@ -45,9 +49,10 @@ export const Header: React.FC<HeaderProps> = ({
   profile,
   onOpenAuthModal,
   onOpenSetupGuide,
+  onOpenAdminPanel,
 }) => {
   const meta = TAB_TITLES[currentTab] || { title: 'GymSaathi', subtitle: '' };
-  const { user, signOut, isConfigured, isGuestMode } = useAuth();
+  const { user, signOut, isConfigured, isGuestMode, isAdmin } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -180,6 +185,19 @@ export const Header: React.FC<HeaderProps> = ({
                   <Database className="w-3.5 h-3.5 text-sky-400" />
                   <span>Supabase Database & SQL</span>
                 </button>
+
+                {isAdmin && onOpenAdminPanel && (
+                  <button
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      onOpenAdminPanel();
+                    }}
+                    className="w-full text-left px-4 py-2 text-xs text-lime-400 hover:bg-lime-500/10 flex items-center gap-2.5 font-bold"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5 text-lime-400" />
+                    <span>Open Admin Console</span>
+                  </button>
+                )}
               </div>
 
               <div className="pt-1 border-t border-zinc-800/80">

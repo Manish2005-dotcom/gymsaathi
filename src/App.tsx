@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { Sidebar, NavTab } from './components/Sidebar';
 import { Header } from './components/Header';
 import { LandingPage } from './pages/LandingPage';
 import { Dashboard } from './pages/Dashboard';
+import { WorkoutsPage } from './pages/WorkoutsPage';
+import { DietPage } from './pages/DietPage';
+import { ProgressPage } from './pages/ProgressPage';
 import { ProfilePage } from './pages/ProfilePage';
-import { WorkoutPlannerPage } from './pages/WorkoutPlannerPage';
-import { ExerciseLibraryPage } from './pages/ExerciseLibraryPage';
-import { DietPlannerPage } from './pages/DietPlannerPage';
-import { KitchenPlannerPage } from './pages/KitchenPlannerPage';
-import { CalculatorPage } from './pages/CalculatorPage';
-import { ProgressTrackerPage } from './pages/ProgressTrackerPage';
-import { EducationPage } from './pages/EducationPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { AdminLayout } from './pages/admin/AdminLayout';
 import { AuthModal } from './components/AuthModal';
 import { SupabaseSetupGuideModal } from './components/SupabaseSetupGuideModal';
 import { OnboardingFlow } from './components/OnboardingFlow';
@@ -26,7 +24,7 @@ import {
   ProgressEntry,
   AppSettings,
 } from './types/fitness';
-import { Sparkles, LogIn, Database, ShieldCheck, Dumbbell, ArrowRight } from 'lucide-react';
+import { Sparkles, LogIn, Database, ShieldCheck, Dumbbell, ShieldAlert, ArrowRight } from 'lucide-react';
 
 function AppContent() {
   const {
@@ -35,6 +33,7 @@ function AppContent() {
     isConfigured,
     isOnboarded,
     isGuestMode,
+    isAdmin,
     setGuestMode,
     profile,
     updateProfile,
@@ -43,10 +42,12 @@ function AppContent() {
   // Navigation state
   const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const initialTabParam = urlParams?.get('tab') as NavTab | null;
+  const hasAdminQuery = urlParams?.has('admin') || urlParams?.get('tab') === 'admin';
 
   const [currentTab, setCurrentTab] = useState<NavTab>(
-    initialTabParam || 'dashboard'
+    initialTabParam && initialTabParam !== ('admin' as any) ? initialTabParam : 'dashboard'
   );
+  const [isAdminView, setIsAdminView] = useState<boolean>(Boolean(hasAdminQuery));
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedWorkoutDayKey, setSelectedWorkoutDayKey] = useState<string | undefined>(undefined);
 
@@ -75,27 +76,29 @@ function AppContent() {
 
   // Cloud sync effect when user logs in
   useEffect(() => {
-    if (!user?.id || !isConfigured) return;
+    const currentUserId = user?.id;
+    if (!currentUserId || !isConfigured) return;
 
     let isSubscribed = true;
+    const uid: string = currentUserId;
 
     async function syncCloudData() {
       try {
         // 1. Sync custom workout plan
-        const cloudPlan = await SupabaseDbService.getWorkoutPlan(user.id);
+        const cloudPlan = await SupabaseDbService.getWorkoutPlan(uid);
         if (cloudPlan && isSubscribed) {
           StorageService.saveCustomWorkoutPlan(cloudPlan);
         }
 
         // 2. Sync workout logs
-        const cloudLogs = await SupabaseDbService.getWorkoutLogs(user.id);
+        const cloudLogs = await SupabaseDbService.getWorkoutLogs(uid);
         if (cloudLogs && isSubscribed) {
           setWorkoutLogs((prev) => ({ ...prev, ...cloudLogs }));
           Object.values(cloudLogs).forEach((s) => StorageService.saveWorkoutSession(s));
         }
 
         // 3. Sync diet preferences
-        const cloudDiet = await SupabaseDbService.getDietPreferences(user.id);
+        const cloudDiet = await SupabaseDbService.getDietPreferences(uid);
         if (cloudDiet && isSubscribed) {
           if (cloudDiet.activePlan) {
             setActiveDietPlan(cloudDiet.activePlan);
@@ -111,7 +114,7 @@ function AppContent() {
         }
 
         // 4. Sync progress entries
-        const cloudProgress = await SupabaseDbService.getProgressEntries(user.id);
+        const cloudProgress = await SupabaseDbService.getProgressEntries(uid);
         if (cloudProgress && isSubscribed) {
           setProgressEntries(cloudProgress);
           cloudProgress.forEach((p) => StorageService.saveProgressEntry(p));
@@ -131,6 +134,7 @@ function AppContent() {
   // Tab navigation
   const handleSelectTab = (tab: NavTab) => {
     setCurrentTab(tab);
+    setIsAdminView(false);
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -160,7 +164,7 @@ function AppContent() {
     if (user?.id && isConfigured) {
       await SupabaseDbService.saveDietPreferences(user.id, {
         activePlan: plan,
-        savedPlans,
+        savedPlans: savedDietPlans,
         kitchenInventory,
       });
     }
@@ -173,7 +177,7 @@ function AppContent() {
 
     if (user?.id && isConfigured) {
       await SupabaseDbService.saveDietPreferences(user.id, {
-        activePlan,
+        activePlan: activeDietPlan,
         savedPlans: updatedPlans,
         kitchenInventory,
       });
@@ -203,8 +207,8 @@ function AppContent() {
 
     if (user?.id && isConfigured) {
       await SupabaseDbService.saveDietPreferences(user.id, {
-        activePlan,
-        savedPlans,
+        activePlan: activeDietPlan,
+        savedPlans: savedDietPlans,
         kitchenInventory: inventory,
       });
     }
@@ -275,7 +279,17 @@ function AppContent() {
     );
   }
 
-  // 1. If signed in but not yet completed onboarding: Show Fitness Onboarding Flow
+  // 1. Separate Admin Area (If admin requested and authenticated)
+  if (isAdminView) {
+    return (
+      <AdminLayout
+        onReturnToUserApp={() => setIsAdminView(false)}
+        onOpenSetupGuide={() => setSetupGuideOpen(true)}
+      />
+    );
+  }
+
+  // 2. If signed in but not yet completed onboarding: Show Fitness Onboarding Flow
   if (user && !isOnboarded) {
     return (
       <div className="min-h-screen bg-[#0c100e] text-zinc-100 flex flex-col font-sans selection:bg-lime-500 selection:text-black">
@@ -286,6 +300,7 @@ function AppContent() {
           profile={profile}
           onOpenAuthModal={() => openAuth('signin')}
           onOpenSetupGuide={() => setSetupGuideOpen(true)}
+          onOpenAdminPanel={() => setIsAdminView(true)}
         />
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-5xl w-full mx-auto">
           <OnboardingFlow onComplete={() => setCurrentTab('dashboard')} />
@@ -298,7 +313,7 @@ function AppContent() {
     );
   }
 
-  // 2. If NOT signed in AND NOT in guest mode: Show Welcome / Auth Gate
+  // 3. If NOT signed in AND NOT in guest mode: Show Welcome / Auth Gate
   if (!user && !isGuestMode) {
     return (
       <div className="min-h-screen bg-[#0c100e] text-zinc-100 flex flex-col justify-between font-sans selection:bg-lime-500 selection:text-black">
@@ -417,7 +432,7 @@ function AppContent() {
     );
   }
 
-  // 3. User is signed in OR exploring as Guest: Render Main Dashboard & Navigation
+  // 4. User is signed in OR exploring as Guest: Render Main SaaS Dashboard & Navigation
   return (
     <div className="min-h-screen bg-[#0c100e] text-zinc-100 flex flex-col font-sans selection:bg-lime-500 selection:text-black">
       {/* Guest Mode Banner */}
@@ -452,6 +467,7 @@ function AppContent() {
         onSelectTab={handleSelectTab}
         isOpenMobile={mobileMenuOpen}
         onCloseMobile={() => setMobileMenuOpen(false)}
+        onOpenAdminPanel={() => setIsAdminView(true)}
       />
 
       {/* Main Content Area */}
@@ -464,6 +480,7 @@ function AppContent() {
           profile={profile}
           onOpenAuthModal={() => openAuth('signin')}
           onOpenSetupGuide={() => setSetupGuideOpen(true)}
+          onOpenAdminPanel={() => setIsAdminView(true)}
         />
 
         {/* Dynamic Page Views */}
@@ -480,8 +497,50 @@ function AppContent() {
               onNavigate={handleSelectTab}
               onSelectWorkoutDay={(dayKey) => {
                 setSelectedWorkoutDayKey(dayKey);
-                handleSelectTab('workout-planner');
+                handleSelectTab('workouts');
               }}
+              onSaveSession={handleSaveWorkoutSession}
+            />
+          )}
+
+          {(currentTab === 'workouts' || currentTab === 'workout-planner' || currentTab === 'exercise-library') && (
+            <WorkoutsPage
+              profile={profile}
+              workoutLogs={workoutLogs}
+              onSaveSession={handleSaveWorkoutSession}
+              initialDayKey={selectedWorkoutDayKey}
+              initialSubTab={currentTab === 'exercise-library' ? 'library' : 'planner'}
+            />
+          )}
+
+          {(currentTab === 'diet-planner' || currentTab === 'kitchen-planner') && (
+            <DietPage
+              profile={profile}
+              activePlan={activeDietPlan}
+              savedPlans={savedDietPlans}
+              kitchenInventory={kitchenInventory}
+              onSaveActivePlan={handleSaveActiveDietPlan}
+              onSavePlanToBookmarks={handleSavePlanToBookmarks}
+              onDeleteBookmark={handleDeleteBookmark}
+              onUpdateInventory={handleUpdateKitchenInventory}
+              initialSubTab={currentTab === 'kitchen-planner' ? 'kitchen' : 'automatic'}
+            />
+          )}
+
+          {(currentTab === 'progress' || currentTab === 'progress-tracker' || currentTab === 'calculator' || currentTab === 'education') && (
+            <ProgressPage
+              entries={progressEntries}
+              profile={profile}
+              onAddEntry={handleAddProgressEntry}
+              onDeleteEntry={handleDeleteProgressEntry}
+              onClearAll={handleClearProgress}
+              initialSubTab={
+                currentTab === 'calculator'
+                  ? 'calculator'
+                  : currentTab === 'education'
+                  ? 'education'
+                  : 'tracker'
+              }
             />
           )}
 
@@ -490,63 +549,6 @@ function AppContent() {
               initialProfile={profile}
               onSaveProfile={handleSaveProfile}
             />
-          )}
-
-          {currentTab === 'workout-planner' && (
-            <WorkoutPlannerPage
-              profile={profile}
-              workoutLogs={workoutLogs}
-              onSaveSession={handleSaveWorkoutSession}
-              initialDayKey={selectedWorkoutDayKey}
-            />
-          )}
-
-          {currentTab === 'exercise-library' && (
-            <ExerciseLibraryPage />
-          )}
-
-          {currentTab === 'diet-planner' && (
-            <DietPlannerPage
-              profile={profile}
-              activePlan={activeDietPlan}
-              savedPlans={savedDietPlans}
-              kitchenInventory={kitchenInventory}
-              onSaveActivePlan={handleSaveActiveDietPlan}
-              onSavePlanToBookmarks={handleSavePlanToBookmarks}
-              onDeleteBookmark={handleDeleteBookmark}
-              onUpdateInventory={handleUpdateKitchenInventory}
-              initialMode="automatic"
-            />
-          )}
-
-          {currentTab === 'kitchen-planner' && (
-            <KitchenPlannerPage
-              profile={profile}
-              activePlan={activeDietPlan}
-              savedPlans={savedDietPlans}
-              kitchenInventory={kitchenInventory}
-              onSaveActivePlan={handleSaveActiveDietPlan}
-              onSavePlanToBookmarks={handleSavePlanToBookmarks}
-              onDeleteBookmark={handleDeleteBookmark}
-              onUpdateInventory={handleUpdateKitchenInventory}
-            />
-          )}
-
-          {currentTab === 'calculator' && (
-            <CalculatorPage profile={profile} />
-          )}
-
-          {currentTab === 'progress-tracker' && (
-            <ProgressTrackerPage
-              entries={progressEntries}
-              onAddEntry={handleAddProgressEntry}
-              onDeleteEntry={handleDeleteProgressEntry}
-              onClearAll={handleClearProgress}
-            />
-          )}
-
-          {currentTab === 'education' && (
-            <EducationPage />
           )}
 
           {currentTab === 'settings' && (
@@ -580,7 +582,9 @@ function AppContent() {
 export default function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
     </AuthProvider>
   );
 }
